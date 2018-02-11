@@ -1,3 +1,5 @@
 *.swp
 reference.tcl
 *.nam
+*.tr
+todo.txt

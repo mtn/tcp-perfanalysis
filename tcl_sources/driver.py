@@ -2,6 +2,10 @@ import sys, os
 
 if not os.path.isdir("out"):
     os.mkdir("out")
+if not os.path.isdir("out/tr"):
+    os.mkdir("out/tr")
+if not os.path.isdir("out/nam"):
+    os.mkdir("out/nam")
 
 protocol_pairs = [("Reno", "Reno"),
                   ("Newreno", "Reno"),

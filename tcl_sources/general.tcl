@@ -17,19 +17,25 @@ set cbr_val [lindex $argv 2]
 
 set ns [new Simulator]
 
-# Sources are green, sinks are red
-$ns color 1 Green
-$ns color 2 Red
+# TODO Sources are green, sinks are red
+# $ns color 1 Green
+# $ns color 2 Red
 
-set nf [open out/${protocol0}_${protocol1}_${cbr_val}.nam w]
+set nf [open out/nam/${protocol0}_${protocol1}_${cbr_val}.nam w]
 $ns namtrace-all $nf
 
+set tf [open out/tr/${protocol0}_${protocol1}_${cbr_val}.tr w]
+$ns trace-all $tf
+
 proc finish {} {
-    global ns nf protocol0 protocol1 cbr_val
+    global ns nf tf protocol0 protocol1 cbr_val
     $ns flush-trace
 
     # Close the NAM trace file
     close $nf
+
+    # Close the trace file
+    close $tf
 
     # # Execute NAM on the tracefile
     # exec nam $out/{protocol0}_${protocol1}_${cbr_val}.nam &
