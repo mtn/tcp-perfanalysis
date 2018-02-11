@@ -9,7 +9,7 @@ $ns color 1 Green
 $ns color 2 Red
 
 set nf [open out.nam w]
-$ns nametrace-all $nf
+$ns namtrace-all $nf
 
 proc finish {} {
     global ns nf
@@ -22,13 +22,14 @@ proc finish {} {
     exec nam out.nam &
     exit 0
 }
-#
+
 # Create the five nodes
 set n1 [$ns node]
 set n2 [$ns node]
 set n3 [$ns node]
 set n4 [$ns node]
 set n5 [$ns node]
+set n6 [$ns node]
 
 # Create the links between nodes
 # These are analagous to physical links and are bidirectional
@@ -40,16 +41,17 @@ $ns duplex-link $n3 $n4 10Mb 10ms DropTail
 
 # Set the orientation of nodes (for rendering in NAM)
 $ns duplex-link-op $n1 $n2 orient right-down
-$ns duplex-link-op $n5 $n2 orient right-up
-$ns duplex-link-op $n2 $n3 orient left
-$ns duplex-link-op $n3 $n4 orient right-up
+$ns duplex-link-op $n2 $n5 orient left-down
+$ns duplex-link-op $n3 $n2 orient right
 $ns duplex-link-op $n3 $n6 orient right-down
+$ns duplex-link-op $n3 $n4 orient right-up
 
 # Set up tcp connection between node 1 and node 4
 set tcp_source_1 [new Agent/TCP]
 $ns attach-agent $n1 $tcp_source_1
 set tcp_sink_4 [new Agent/TCPSink]
 $ns attach-agent $n4 $tcp_sink_4
+$ns connect $tcp_source_1 $tcp_sink_4
 
 # Set up FTP application between node 1 and ndoe 4
 set ftp_1_4 [new Application/FTP]
@@ -61,6 +63,7 @@ set tcp_source_5 [new Agent/TCP]
 $ns attach-agent $n5 $tcp_source_5
 set tcp_sink_6 [new Agent/TCPSink]
 $ns attach-agent $n6 $tcp_sink_6
+$ns connect $tcp_source_5 $tcp_sink_6
 
 # Set up FTP application between node 5 and node 6
 set ftp_5_6 [new Application/FTP]
@@ -78,7 +81,7 @@ $ns connect $udp $null
 set cbr [new Application/Traffic/CBR]
 $cbr attach-agent $udp
 $cbr set type_ CBR
-$cbs set random_ false
+$cbr set random_ false
 
 # Schedule events for the CBR and FTP agents
 $ns at 0.1 "$cbr start"
