@@ -1,2 +1,0 @@
-# Parser for trace files
-
