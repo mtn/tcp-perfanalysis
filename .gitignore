@@ -1,4 +1,6 @@
 *.swp
 reference.tcl
 *.nam
+*.tr
+out
 todo.txt
