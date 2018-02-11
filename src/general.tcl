@@ -37,13 +37,13 @@ proc finish {} {
     # Close the trace file
     close $tf
 
-    # # Execute NAM on the tracefile
-    # exec nam $out/{protocol0}_${protocol1}_${cbr_val}.nam &
+    # Execute NAM on the tracefile
+    # exec nam out/nam/${protocol0}_${protocol1}_${cbr_val}.nam &
 
     exit 0
 }
 
-# Create the five nodes
+# Create the six nodes
 set n1 [$ns node]
 set n2 [$ns node]
 set n3 [$ns node]
@@ -67,7 +67,7 @@ $ns duplex-link-op $n3 $n6 orient right-down
 $ns duplex-link-op $n3 $n4 orient right-up
 
 # Set up tcp connection between node 1 and node 4
-set tcp_source_1 [new Agent/TCP/Reno]
+set tcp_source_1 [new Agent/TCP/${protocol0}]
 $ns attach-agent $n1 $tcp_source_1
 set tcp_sink_4 [new Agent/TCPSink]
 $ns attach-agent $n4 $tcp_sink_4
@@ -79,7 +79,7 @@ $ftp_1_4 attach-agent $tcp_source_1
 $ftp_1_4 set type_ FTP
 
 # Set up tcp connection between node 5 and node 6
-set tcp_source_5 [new Agent/TCP/Reno]
+set tcp_source_5 [new Agent/TCP/${protocol1}]
 $ns attach-agent $n5 $tcp_source_5
 set tcp_sink_6 [new Agent/TCPSink]
 $ns attach-agent $n6 $tcp_sink_6
@@ -100,9 +100,8 @@ $ns connect $udp $null
 # Set up a CBR over UDP
 set cbr [new Application/Traffic/CBR]
 $cbr attach-agent $udp
-# $cbr set rate_ ${cbr}mb
+$cbr set rate_ ${cbr_val}mb
 $cbr set type_ CBR
-$cbr set random_ false
 
 # Schedule events for the CBR and FTP agents
 $ns at 0.1 "$cbr start"
