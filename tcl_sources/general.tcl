@@ -5,13 +5,15 @@
 # The TCP protocol versions are provided as runtime arguments
 
 # Ensure two protocols were passed as arguments#
-if { $argc != 2 } {
-    puts "Usage blah"
+if { $argc != 3 } {
+    puts "Usage: nc general.tcl protocol1 protocol2 cbr"
+
     exit 1
 }
 
 set protocol0 [lindex $argv 0]
 set protocol1 [lindex $argv 1]
+set cbr_val [lindex $argv 2]
 
 set ns [new Simulator]
 
@@ -19,18 +21,19 @@ set ns [new Simulator]
 $ns color 1 Green
 $ns color 2 Red
 
-set nf [open ${protocol0}_${protocol1}.nam w]
+set nf [open ${protocol0}_${protocol1}_${cbr_val}.nam w]
 $ns namtrace-all $nf
 
 proc finish {} {
-    global ns nf protocol0 protocol1
+    global ns nf protocol0 protocol1 cbr_val
     $ns flush-trace
 
     # Close the NAM trace file
     close $nf
 
-    # Execute NAM on the tracefile
-    exec nam ${protocol0}_${protocol1}.nam &
+    # # Execute NAM on the tracefile
+    # exec nam ${protocol0}_${protocol1}_${cbr_val}.nam &
+
     exit 0
 }
 
@@ -91,6 +94,7 @@ $ns connect $udp $null
 # Set up a CBR over UDP
 set cbr [new Application/Traffic/CBR]
 $cbr attach-agent $udp
+# $cbr set rate_ ${cbr}mb
 $cbr set type_ CBR
 $cbr set random_ false
 
