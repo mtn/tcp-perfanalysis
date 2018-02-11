@@ -1,4 +1,4 @@
-# Based on example at http://nile.wpi.edu/NS/simple_ns.html
+#Based on example at http://nile.wpi.edu/NS/simple_ns.html
 # FTP is used to generate traffic between nodes
 # This was chosen because it generates a steady stream of traffic
 
@@ -42,12 +42,12 @@ $ns duplex-link $n3 $n4 10Mb 10ms DropTail
 # Set the orientation of nodes (for rendering in NAM)
 $ns duplex-link-op $n1 $n2 orient right-down
 $ns duplex-link-op $n2 $n5 orient left-down
-$ns duplex-link-op $n3 $n2 orient right
+$ns duplex-link-op $n3 $n2 orient left
 $ns duplex-link-op $n3 $n6 orient right-down
 $ns duplex-link-op $n3 $n4 orient right-up
 
 # Set up tcp connection between node 1 and node 4
-set tcp_source_1 [new Agent/TCP]
+set tcp_source_1 [new Agent/TCP/Vegas]
 $ns attach-agent $n1 $tcp_source_1
 set tcp_sink_4 [new Agent/TCPSink]
 $ns attach-agent $n4 $tcp_sink_4
@@ -59,7 +59,7 @@ $ftp_1_4 attach-agent $tcp_source_1
 $ftp_1_4 set type_ FTP
 
 # Set up tcp connection between node 5 and node 6
-set tcp_source_5 [new Agent/TCP]
+set tcp_source_5 [new Agent/TCP/Vegas]
 $ns attach-agent $n5 $tcp_source_5
 set tcp_sink_6 [new Agent/TCPSink]
 $ns attach-agent $n6 $tcp_sink_6
