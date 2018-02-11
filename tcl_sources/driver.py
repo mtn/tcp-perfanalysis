@@ -1,5 +1,8 @@
 import sys, os
 
+if not os.path.isdir("out"):
+    os.mkdir("out")
+
 protocol_pairs = [("Reno", "Reno"),
                   ("Newreno", "Reno"),
                   ("Vegas", "Vegas"),

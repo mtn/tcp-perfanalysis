@@ -21,7 +21,7 @@ set ns [new Simulator]
 $ns color 1 Green
 $ns color 2 Red
 
-set nf [open ${protocol0}_${protocol1}_${cbr_val}.nam w]
+set nf [open out/${protocol0}_${protocol1}_${cbr_val}.nam w]
 $ns namtrace-all $nf
 
 proc finish {} {
@@ -32,7 +32,7 @@ proc finish {} {
     close $nf
 
     # # Execute NAM on the tracefile
-    # exec nam ${protocol0}_${protocol1}_${cbr_val}.nam &
+    # exec nam $out/{protocol0}_${protocol1}_${cbr_val}.nam &
 
     exit 0
 }
