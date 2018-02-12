@@ -103,18 +103,18 @@ def gen_data(files, args):
 
     for i, stream in enumerate(["tcp14", "tcp56", "cbr"]):
         if args.rr:
-            outfiles[i] = open(os.path.join(filepath, "dat",
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
                                "rr_{}_{}_part1.dat".format(stream, analysis_kind)), "w")
         elif args.nrr:
-            outfiles[i] = open(os.path.join(filepath, "dat",
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
                                "nrr_{}_{}_part1.dat".format(stream, analysis_kind)),
                                "w")
         elif args.vv:
-            outfiles[i] = open(os.path.join(filepath, "dat",
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
                                "vv_{}_{}_part1.dat".format(stream, analysis_kind)),
                                "w")
         elif args.nrv:
-            outfiles[i] = open(os.path.join(filepath, "dat",
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
                                "nrv_{}_{}_part1.dat".format(stream, analysis_kind)),
                                "w")
 
@@ -173,6 +173,10 @@ if __name__=="__main__":
     DAT_PATH = os.path.join(BASE_PATH, "dat")
     if not os.path.isdir(DAT_PATH):
         os.mkdir(DAT_PATH)
+
+    P1_DOUBLE_PATH = os.path.join(DAT_PATH, "p1_double")
+    if not os.path.isdir(P1_DOUBLE_PATH):
+        os.mkdir(P1_DOUBLE_PATH)
 
     if args.all:
         for i, pattern in enumerate(["Reno_Reno_*.tr", "Newreno_Reno_*.tr",
