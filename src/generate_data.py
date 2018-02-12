@@ -9,28 +9,116 @@ import sys
 import os
 
 
+def increment(key, dictionary, amount=1):
+    if key not in dictionary:
+        dictionary[key] = 0
+    dictionary[key] += 1
+
+def compute_loss_rate(drops, recvs, key):
+    if not key in drops:
+        return 0
+    elif not key in recvs:
+        return 1
+
+    return drops[key]/(recvs[key] + drops[key])
+
+def compute_avg_bandwidth(sent, elapsed_time, key):
+    if not key in sent:
+        return 0
+
+    return sent[key] / elapsed_time
+
+def get_loss_rates_part1(opened):
+    drops = {}
+    recvs = {}
+
+    for line in opened:
+        split = line.split(" ")
+
+        # Increment recvs for a 'r' at any tcp endpoint
+        if split[0] == "r":
+
+            if split[7] == "1" and split[3] == "0" or split[3] == "3":
+                increment("tcp14", recvs)
+
+            if split[7] == "2" and split[3] == "4" or split[3] == "5":
+                increment("tcp56", recvs)
+
+            if split[7] == "3":
+                increment("udp", recvs)
+
+        elif line[0] == "d":
+
+            if split[7] == "1":
+                increment("tcp14", drops)
+
+            if split[7] == "2":
+                increment("tcp56", drops)
+
+            if split[7] == "3":
+                increment("udp", drops)
+
+    tcp_14_loss_rate = compute_loss_rate(drops, recvs, "tcp14")
+    tcp_56_loss_rate = compute_loss_rate(drops, recvs, "tcp56")
+    udp_loss_rate = compute_loss_rate(drops, recvs, "udp")
+
+    return tcp_14_loss_rate, tcp_56_loss_rate, udp_loss_rate
+
+def get_avg_bandwidth_part1(opened):
+    ELAPSED_TIME = 3
+    sent = {}
+
+    for line in opened:
+        split = line.split(" ")
+
+        # Increment recvs for a 'r' at any tcp endpoint
+        if split[0] == "r":
+            # Packet size will always be integral
+            pkt_size = int(split[5])
+
+            if split[7] == "1" and split[3] == "0" or split[3] == "3":
+                increment("tcp14", sent, pkt_size)
+
+            if split[7] == "2" and split[3] == "4" or split[3] == "5":
+                increment("tcp56", sent, pkt_size)
+
+            if split[7] == "3":
+                increment("udp", sent, pkt_size)
+
+    tcp_14_avg_bandwidth = compute_avg_bandwidth(sent, ELAPSED_TIME, "tcp14")
+    tcp_56_avg_bandwidth = compute_avg_bandwidth(sent, ELAPSED_TIME, "tcp56")
+    udp_avg_bandwidth = compute_avg_bandwidth(sent, ELAPSED_TIME, "udp")
+
+    return tcp_14_avg_bandwidth, tcp_56_avg_bandwidth, udp_avg_bandwidth
+
 # Files is an iterator over names of matching files
-def drops_vs_cbr(files, args):
+def gen_data(files, args):
     filepath = pathlib.Path(__file__).resolve().parent
-    outfiles = []
+    outfiles = [None, None, None]
+
+    if args.cbr_drops:
+        analysis_kind = "drops"
+    elif args.cbr_bandwidth:
+        analysis_kind = "bandwidth"
 
     for i, stream in enumerate(["tcp14", "tcp56", "cbr"]):
         if args.rr:
             outfiles[i] = open(os.path.join(filepath, "dat",
-                               "rr_{}_drops_part1.dat".format(stream)), "w")
+                               "rr_{}_{}_part1.dat".format(stream, analysis_kind)), "w")
         elif args.nrr:
             outfiles[i] = open(os.path.join(filepath, "dat",
-                               "nrr_{}_drops_part1.dat".format(stream)), "w")
+                               "nrr_{}_{}_part1.dat".format(stream, analysis_kind)),
+                               "w")
         elif args.vv:
             outfiles[i] = open(os.path.join(filepath, "dat",
-                               "vv_{}_drops_part1.dat".format(stream)), "w")
+                               "vv_{}_{}_part1.dat".format(stream, analysis_kind)),
+                               "w")
         elif args.nrv:
             outfiles[i] = open(os.path.join(filepath, "dat",
-                               "nrv_{}_drops_part1.dat".format(stream)), "w")
+                               "nrv_{}_{}_part1.dat".format(stream, analysis_kind)),
+                               "w")
 
     for f in files:
-        loss_rate = 0
-
         last_ind = f.rfind("/")
         if last_ind != -1:
             filename = f[last_ind+1:]
@@ -38,70 +126,30 @@ def drops_vs_cbr(files, args):
             filename = f
 
         # Extract the CBR from the filename
-        cbr = int(''.join(c for c in filename if c.isdigit()))
+        cbr = int(''.join(c for c in filename if c.isdigit()))/10
 
         with open(f) as opened:
-            drops = {}
-            recvs = {}
+            if args.cbr_drops:
+                tcp_14, tcp_56, udp = get_loss_rates_part1(opened)
 
-            for line in opened:
-                split = line.split(" ")
-                if split[0] == "r":
+                outfiles[0].write("{}\t{}\n".format(cbr, tcp_14))
+                outfiles[1].write("{}\t{}\n".format(cbr, tcp_56))
+                outfiles[2].write("{}\t{}\n".format(cbr, udp))
+            elif args.cbr_bandwidth:
+                tcp_14, tcp_56, udp = get_avg_bandwidth_part1(opened)
 
-                    if split[7] == "1":
-                        if "tcp14" not in recvs:
-                            recvs["tcp14"] = 0
-                        recvs["tcp14"] += 1
+                outfiles[0].write("{}\t{}\n".format(cbr, tcp_14))
+                outfiles[1].write("{}\t{}\n".format(cbr, tcp_56))
+                outfiles[2].write("{}\t{}\n".format(cbr, udp))
 
-                    if split[7] == "2":
-                        if "tcp56" not in recvs:
-                            recvs["tcp56"] = 0
-                        recvs["tcp56"] += 1
-
-                    if split[7] == "3":
-                        if "udp" not in recvs:
-                            recvs["udp"] = 0
-                        recvs["udp"] += 1
-
-                elif line[0] == "d":
-
-                    if split[7] == "1":
-                        if "tcp14" not in drops:
-                            drops["tcp14"] = 0
-                        drops["tcp14"] += 1
-
-                    if split[7] == "2":
-                        if "tcp56" not in drops:
-                            drops["tcp56"] = 0
-                        drops["tcp56"] += 1
-
-                    if split[7] == "3":
-                        if "udp" not in drops:
-                            drops["udp"] = 0
-                        drops["udp"] += 1
-
-            tcp_14_loss_rate = drops["tcp14"]/(recvs["tcp14"] + drops["tcp14"])
-            tcp_56_loss_rate = drops["tcp56"]/(recvs["tcp56"] + drops["tcp56"])
-            udp_loss_rate = drops["udp"]/(recvs["udp"] + drops["udp"])
-
-
-        outfiles[0].write("{}\t{}\n".format(cbr, tcp_14_loss_rate))
-        outfiles[1].write("{}\t{}\n".format(cbr, tcp_56_loss_rate))
-        outfiles[2].write("{}\t{}\n".format(cbr, udp_loss_rate))
-
-# Files is an iterator over names of matching files
-def bandwidth_vs_cbr(files, args):
-    pass
 
 def generate_datfile(pattern, args):
     filepath = pathlib.Path(__file__).resolve().parent
 
     gglob = "{}/out/tr/{}".format(filepath, pattern)
     file_matches = glob.iglob(gglob)
-    if args.cbr_drops:
-        drops_vs_cbr(file_matches, args)
-    else:
-        bandwidth_vs_cbr(file_matches, args)
+
+    gen_data(file_matches, args)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Generate input data for gnuplot.")
