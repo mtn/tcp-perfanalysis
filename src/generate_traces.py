@@ -14,6 +14,6 @@ protocol_pairs = [("Reno", "Reno"),
 
 # For each protocol pair, generate traces for each CBR from 0 to 10 with steps of 0.5
 for p1, p2 in protocol_pairs:
-    for cbr in range(0, 101, 5):
+    for cbr in range(1, 101, 5):
         # print("ns general.tcl {} {} {}".format(p1, p2, cbr/10))
         os.system("ns general.tcl {} {} {}".format(p1, p2, cbr/10))

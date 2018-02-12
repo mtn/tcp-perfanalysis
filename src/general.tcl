@@ -18,8 +18,8 @@ set cbr_val [lindex $argv 2]
 set ns [new Simulator]
 
 # TODO Sources are green, sinks are red
-# $ns color 1 Green
-# $ns color 2 Red
+$ns color 1 Green
+$ns color 2 Red
 
 set nf [open out/nam/${protocol0}_${protocol1}_${cbr_val}.nam w]
 $ns namtrace-all $nf
@@ -68,10 +68,12 @@ $ns duplex-link-op $n3 $n4 orient right-up
 
 # Set up tcp connection between node 1 and node 4
 set tcp_source_1 [new Agent/TCP/${protocol0}]
+$tcp_source_1 set class_ 2
 $ns attach-agent $n1 $tcp_source_1
 set tcp_sink_4 [new Agent/TCPSink]
 $ns attach-agent $n4 $tcp_sink_4
 $ns connect $tcp_source_1 $tcp_sink_4
+$tcp_source_1 set fid_ 1
 
 # Set up FTP application between node 1 and ndoe 4
 set ftp_1_4 [new Application/FTP]
@@ -80,10 +82,12 @@ $ftp_1_4 set type_ FTP
 
 # Set up tcp connection between node 5 and node 6
 set tcp_source_5 [new Agent/TCP/${protocol1}]
+$tcp_source_5 set class_ 2
 $ns attach-agent $n5 $tcp_source_5
 set tcp_sink_6 [new Agent/TCPSink]
 $ns attach-agent $n6 $tcp_sink_6
 $ns connect $tcp_source_5 $tcp_sink_6
+$tcp_source_5 set fid_ 2
 
 # Set up FTP application between node 5 and node 6
 set ftp_5_6 [new Application/FTP]
@@ -96,6 +100,7 @@ $ns attach-agent $n2 $udp
 set null [new Agent/Null]
 $ns attach-agent $n3 $null
 $ns connect $udp $null
+$udp set fid_ 3
 
 # Set up a CBR over UDP
 set cbr [new Application/Traffic/CBR]
