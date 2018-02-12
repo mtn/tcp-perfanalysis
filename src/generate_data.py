@@ -72,14 +72,18 @@ def bandwidth_vs_cbr(files, args):
         cbr = int(''.join(c for c in filename if c.isdigit()))
 
         with open(f) as opened:
-            drops = 0
-            recvs = 0
+            drops = {}
+            recvs = {}
 
             for line in opened:
-                if line[0] == "r":
-                    recvs += 1
+                split = line.split(" ")
+                if split[0] == "r":
+                    split[2] == ""
+                    # recvs += 1
+                    pass
                 elif line[0] == "d":
-                    drops += 1
+                    # drops += 1
+                    pass
 
             loss_rate = drops/(recvs + drops)
 
