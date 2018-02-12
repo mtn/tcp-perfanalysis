@@ -12,52 +12,21 @@ import os
 # Files is an iterator over names of matching files
 def drops_vs_cbr(files, args):
     filepath = pathlib.Path(__file__).resolve().parent
-    if args.rr:
-        out = open(os.path.join(filepath, "dat", "rr_drops_part1.dat"), "w")
-    elif args.nrr:
-        out = open(os.path.join(filepath, "dat", "nrr_drops_part1.dat"), "w")
-    elif args.vv:
-        out = open(os.path.join(filepath, "dat", "vv_drops_part1.dat"), "w")
-    elif args.nrv:
-        out = open(os.path.join(filepath, "dat", "nrv_drops_part1.dat"), "w")
+    outfiles = []
 
-    for f in files:
-        loss_rate = 0
-
-        last_ind = f.rfind("/")
-        if last_ind != -1:
-            filename = f[last_ind+1:]
-        else:
-            filename = f
-
-        # Extract the CBR from the filename
-        cbr = int(''.join(c for c in filename if c.isdigit()))
-
-        with open(f) as opened:
-            drops = 0
-            recvs = 0
-
-            for line in opened:
-                if line[0] == "r":
-                    recvs += 1
-                elif line[0] == "d":
-                    drops += 1
-
-            loss_rate = drops/(recvs + drops)
-
-        out.write("{}\t{}\n".format(cbr, loss_rate))
-
-# Files is an iterator over names of matching files
-def bandwidth_vs_cbr(files, args):
-    filepath = pathlib.Path(__file__).resolve().parent
-    if args.rr:
-        out = open(os.path.join(filepath, "dat", "rr_bandwidth_part1.dat"), "w")
-    elif args.nrr:
-        out = open(os.path.join(filepath, "dat", "nrr_bandwidth_part1.dat"), "w")
-    elif args.vv:
-        out = open(os.path.join(filepath, "dat", "vv_bandwidth_part1.dat"), "w")
-    elif args.nrv:
-        out = open(os.path.join(filepath, "dat", "nrv_bandwidth_part1.dat"), "w")
+    for i, stream in enumerate(["tcp14", "tcp56", "cbr"]):
+        if args.rr:
+            outfiles[i] = open(os.path.join(filepath, "dat",
+                               "rr_{}_drops_part1.dat".format(stream)), "w")
+        elif args.nrr:
+            outfiles[i] = open(os.path.join(filepath, "dat",
+                               "nrr_{}_drops_part1.dat".format(stream)), "w")
+        elif args.vv:
+            outfiles[i] = open(os.path.join(filepath, "dat",
+                               "vv_{}_drops_part1.dat".format(stream)), "w")
+        elif args.nrv:
+            outfiles[i] = open(os.path.join(filepath, "dat",
+                               "nrv_{}_drops_part1.dat".format(stream)), "w")
 
     for f in files:
         loss_rate = 0
@@ -78,16 +47,51 @@ def bandwidth_vs_cbr(files, args):
             for line in opened:
                 split = line.split(" ")
                 if split[0] == "r":
-                    split[2] == ""
-                    # recvs += 1
-                    pass
+
+                    if split[7] == "1":
+                        if "tcp14" not in recvs:
+                            recvs["tcp14"] = 0
+                        recvs["tcp14"] += 1
+
+                    if split[7] == "2":
+                        if "tcp56" not in recvs:
+                            recvs["tcp56"] = 0
+                        recvs["tcp56"] += 1
+
+                    if split[7] == "3":
+                        if "udp" not in recvs:
+                            recvs["udp"] = 0
+                        recvs["udp"] += 1
+
                 elif line[0] == "d":
-                    # drops += 1
-                    pass
 
-            loss_rate = drops/(recvs + drops)
+                    if split[7] == "1":
+                        if "tcp14" not in drops:
+                            drops["tcp14"] = 0
+                        drops["tcp14"] += 1
 
-        out.write("{}\t{}\n".format(cbr, loss_rate))
+                    if split[7] == "2":
+                        if "tcp56" not in drops:
+                            drops["tcp56"] = 0
+                        drops["tcp56"] += 1
+
+                    if split[7] == "3":
+                        if "udp" not in drops:
+                            drops["udp"] = 0
+                        drops["udp"] += 1
+
+            tcp_14_loss_rate = drops["tcp14"]/(recvs["tcp14"] + drops["tcp14"])
+            tcp_56_loss_rate = drops["tcp56"]/(recvs["tcp56"] + drops["tcp56"])
+            udp_loss_rate = drops["udp"]/(recvs["udp"] + drops["udp"])
+
+
+        outfiles[0].write("{}\t{}\n".format(cbr, tcp_14_loss_rate))
+        outfiles[1].write("{}\t{}\n".format(cbr, tcp_56_loss_rate))
+        outfiles[2].write("{}\t{}\n".format(cbr, udp_loss_rate))
+
+# Files is an iterator over names of matching files
+def bandwidth_vs_cbr(files, args):
+    pass
 
 def generate_datfile(pattern, args):
     filepath = pathlib.Path(__file__).resolve().parent
