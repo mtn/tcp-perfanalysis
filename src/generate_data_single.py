@@ -9,6 +9,10 @@ import sys
 import os
 
 
+def gen_dir_if_necessary(dirpath):
+    if not os.path.isdir(dirpath):
+        os.mkdir(dirpath)
+
 def increment(key, dictionary, amount=1):
     if key not in dictionary:
         dictionary[key] = 0
@@ -103,20 +107,25 @@ def gen_data(files, args):
 
     for i, stream in enumerate(["tcp14", "tcp56", "cbr"]):
         if args.rr:
-            outfiles[i] = open(os.path.join(filepath, "dat",
-                               "rr_{}_{}_part1.dat".format(stream, analysis_kind)), "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "rr"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "rr", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "rr",
+                analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrr:
-            outfiles[i] = open(os.path.join(filepath, "dat",
-                               "nrr_{}_{}_part1.dat".format(stream, analysis_kind)),
-                               "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrr"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrr", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "nrr",
+                analysis_kind, "{}.dat".format(stream)), "w")
         elif args.vv:
-            outfiles[i] = open(os.path.join(filepath, "dat",
-                               "vv_{}_{}_part1.dat".format(stream, analysis_kind)),
-                               "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "vv"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "vv", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "vv",
+                analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrv:
-            outfiles[i] = open(os.path.join(filepath, "dat",
-                               "nrv_{}_{}_part1.dat".format(stream, analysis_kind)),
-                               "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrv"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrv", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "nrv",
+                analysis_kind, "{}.dat".format(stream)), "w")
 
     for f in files:
         last_ind = f.rfind("/")
@@ -155,9 +164,10 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Generate input data for gnuplot.")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--r", action="store_true")
-    group.add_argument("--nr", action="store_true")
-    group.add_argument("--v", action="store_true")
+    group.add_argument("--rr", action="store_true")
+    group.add_argument("--nrr", action="store_true")
+    group.add_argument("--vv", action="store_true")
+    group.add_argument("--nrv", action="store_true")
     group.add_argument("--all", action="store_true")
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -172,6 +182,10 @@ if __name__=="__main__":
     DAT_PATH = os.path.join(BASE_PATH, "dat")
     if not os.path.isdir(DAT_PATH):
         os.mkdir(DAT_PATH)
+
+    P1_DOUBLE_PATH = os.path.join(DAT_PATH, "p1_double")
+    if not os.path.isdir(P1_DOUBLE_PATH):
+        os.mkdir(P1_DOUBLE_PATH)
 
     if args.all:
         for i, pattern in enumerate(["Reno_Reno_*.tr", "Newreno_Reno_*.tr",

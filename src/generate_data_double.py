@@ -9,6 +9,10 @@ import sys
 import os
 
 
+def gen_dir_if_necessary(dirpath):
+    if not os.path.isdir(dirpath):
+        os.mkdir(dirpath)
+
 def increment(key, dictionary, amount=1):
     if key not in dictionary:
         dictionary[key] = 0
@@ -103,20 +107,25 @@ def gen_data(files, args):
 
     for i, stream in enumerate(["tcp14", "tcp56", "cbr"]):
         if args.rr:
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
-                               "rr_{}_{}_part1.dat".format(stream, analysis_kind)), "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "rr"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "rr", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "rr",
+                analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrr:
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
-                               "nrr_{}_{}_part1.dat".format(stream, analysis_kind)),
-                               "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrr"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrr", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "nrr",
+                analysis_kind, "{}.dat".format(stream)), "w")
         elif args.vv:
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
-                               "vv_{}_{}_part1.dat".format(stream, analysis_kind)),
-                               "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "vv"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "vv", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "vv",
+                analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrv:
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double",
-                               "nrv_{}_{}_part1.dat".format(stream, analysis_kind)),
-                               "w")
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrv"))
+            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrv", analysis_kind))
+            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "nrv",
+                analysis_kind, "{}.dat".format(stream)), "w")
 
     for f in files:
         last_ind = f.rfind("/")
