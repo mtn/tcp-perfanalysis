@@ -97,24 +97,24 @@ def gen_data(files, args):
 
     for i, stream in enumerate(["tcp", "cbr"]):
         if args.rr:
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "rr"))
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "rr", analysis_kind))
-            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "rr",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "rr"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "rr", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1-single", "rr",
                 analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrr:
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrr"))
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrr", analysis_kind))
-            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "nrr",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "nrr"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "nrr", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1-single", "nrr",
                 analysis_kind, "{}.dat".format(stream)), "w")
         elif args.vv:
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "vv"))
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "vv", analysis_kind))
-            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "vv",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "vv"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "vv", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1-single", "vv",
                 analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrv:
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrv"))
-            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrv", analysis_kind))
-            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "nrv",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "nrv"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1-single", "nrv", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1-single", "nrv",
                 analysis_kind, "{}.dat".format(stream)), "w")
 
     for f in files:
@@ -171,9 +171,9 @@ if __name__=="__main__":
     if not os.path.isdir(DAT_PATH):
         os.mkdir(DAT_PATH)
 
-    P1_single_PATH = os.path.join(DAT_PATH, "p1_single")
-    if not os.path.isdir(P1_single_PATH):
-        os.mkdir(P1_single_PATH)
+    P1_SINGLE_PATH = os.path.join(DAT_PATH, "p1-single")
+    if not os.path.isdir(P1_SINGLE_PATH):
+        os.mkdir(P1_SINGLE_PATH)
 
     if args.all:
         for i, pattern in enumerate(["Reno_Reno_*.tr", "Newreno_Reno_*.tr",

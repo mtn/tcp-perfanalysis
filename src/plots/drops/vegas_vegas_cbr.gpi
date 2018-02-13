@@ -1,0 +1,7 @@
+set ylabel "Drop Ratio"
+set xlabel "CBR (MB/s)"
+set title "Vegas-Vegas and CBR Drops vs. CBR"
+plot "< sort ../../dat/p1-double/vv/drops/cbr.dat" title "CBR" with lines, \
+     "< sort ../../dat/p1-double/vv/drops/tcp14.dat" title "TCP 1-4" with lines, \
+     "< sort ../../dat/p1-double/vv/drops/tcp56.dat" title "TCP 5-6" with lines
+
