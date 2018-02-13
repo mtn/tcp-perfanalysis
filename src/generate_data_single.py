@@ -1,5 +1,6 @@
 """
 Generate output data files for plotting in gnuplot
+Flow id of tcp connection is 1, udp is 3
 """
 
 import argparse
@@ -43,10 +44,7 @@ def get_loss_rates_part1(opened):
         if split[0] == "r":
 
             if split[7] == "1" and split[3] == "0" or split[3] == "3":
-                increment("tcp14", recvs)
-
-            if split[7] == "2" and split[3] == "4" or split[3] == "5":
-                increment("tcp56", recvs)
+                increment("tcp", recvs)
 
             if split[7] == "3":
                 increment("udp", recvs)
@@ -54,19 +52,15 @@ def get_loss_rates_part1(opened):
         elif line[0] == "d":
 
             if split[7] == "1":
-                increment("tcp14", drops)
-
-            if split[7] == "2":
-                increment("tcp56", drops)
+                increment("tcp", drops)
 
             if split[7] == "3":
                 increment("udp", drops)
 
-    tcp_14_loss_rate = compute_loss_rate(drops, recvs, "tcp14")
-    tcp_56_loss_rate = compute_loss_rate(drops, recvs, "tcp56")
+    tcp_loss_rate = compute_loss_rate(drops, recvs, "tcp")
     udp_loss_rate = compute_loss_rate(drops, recvs, "udp")
 
-    return tcp_14_loss_rate, tcp_56_loss_rate, udp_loss_rate
+    return tcp_loss_rate, udp_loss_rate
 
 def get_avg_bandwidth_part1(opened):
     ELAPSED_TIME = 3
@@ -81,19 +75,15 @@ def get_avg_bandwidth_part1(opened):
             pkt_size = int(split[5])
 
             if split[7] == "1" and split[3] == "0" or split[3] == "3":
-                increment("tcp14", sent, pkt_size)
-
-            if split[7] == "2" and split[3] == "4" or split[3] == "5":
-                increment("tcp56", sent, pkt_size)
+                increment("tcp", sent, pkt_size)
 
             if split[7] == "3":
                 increment("udp", sent, pkt_size)
 
-    tcp_14_avg_bandwidth = compute_avg_bandwidth(sent, ELAPSED_TIME, "tcp14")
-    tcp_56_avg_bandwidth = compute_avg_bandwidth(sent, ELAPSED_TIME, "tcp56")
+    tcp_avg_bandwidth = compute_avg_bandwidth(sent, ELAPSED_TIME, "tcp")
     udp_avg_bandwidth = compute_avg_bandwidth(sent, ELAPSED_TIME, "udp")
 
-    return tcp_14_avg_bandwidth, tcp_56_avg_bandwidth, udp_avg_bandwidth
+    return tcp_avg_bandwidth, udp_avg_bandwidth
 
 # Files is an iterator over names of matching files
 def gen_data(files, args):
@@ -105,26 +95,26 @@ def gen_data(files, args):
     elif args.cbr_bandwidth:
         analysis_kind = "bandwidth"
 
-    for i, stream in enumerate(["tcp14", "tcp56", "cbr"]):
+    for i, stream in enumerate(["tcp", "cbr"]):
         if args.rr:
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "rr"))
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "rr", analysis_kind))
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "rr",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "rr"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "rr", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "rr",
                 analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrr:
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrr"))
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrr", analysis_kind))
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "nrr",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrr"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrr", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "nrr",
                 analysis_kind, "{}.dat".format(stream)), "w")
         elif args.vv:
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "vv"))
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "vv", analysis_kind))
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "vv",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "vv"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "vv", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "vv",
                 analysis_kind, "{}.dat".format(stream)), "w")
         elif args.nrv:
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrv"))
-            gen_dir_if_necessary(os.path.join(DAT_PATH, "p1_double", "nrv", analysis_kind))
-            outfiles[i] = open(os.path.join(filepath, "dat", "p1_double", "nrv",
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrv"))
+            gen_dir_if_necessary(os.path.join(str(DAT_PATH), "p1_single", "nrv", analysis_kind))
+            outfiles[i] = open(os.path.join(str(filepath), "dat", "p1_single", "nrv",
                 analysis_kind, "{}.dat".format(stream)), "w")
 
     for f in files:
@@ -139,17 +129,15 @@ def gen_data(files, args):
 
         with open(f) as opened:
             if args.cbr_drops:
-                tcp_14, tcp_56, udp = get_loss_rates_part1(opened)
+                tcp, udp = get_loss_rates_part1(opened)
 
-                outfiles[0].write("{}\t{}\n".format(cbr, tcp_14))
-                outfiles[1].write("{}\t{}\n".format(cbr, tcp_56))
-                outfiles[2].write("{}\t{}\n".format(cbr, udp))
+                outfiles[0].write("{}\t{}\n".format(cbr, tcp))
+                outfiles[1].write("{}\t{}\n".format(cbr, udp))
             elif args.cbr_bandwidth:
-                tcp_14, tcp_56, udp = get_avg_bandwidth_part1(opened)
+                tcp, udp = get_avg_bandwidth_part1(opened)
 
-                outfiles[0].write("{}\t{}\n".format(cbr, tcp_14))
-                outfiles[1].write("{}\t{}\n".format(cbr, tcp_56))
-                outfiles[2].write("{}\t{}\n".format(cbr, udp))
+                outfiles[0].write("{}\t{}\n".format(cbr, tcp))
+                outfiles[1].write("{}\t{}\n".format(cbr, udp))
 
 
 def generate_datfile(pattern, args):
@@ -179,13 +167,13 @@ if __name__=="__main__":
     args = parser.parse_args()
 
     BASE_PATH = pathlib.Path(__file__).resolve().parent
-    DAT_PATH = os.path.join(BASE_PATH, "dat")
+    DAT_PATH = os.path.join(str(BASE_PATH), "dat")
     if not os.path.isdir(DAT_PATH):
         os.mkdir(DAT_PATH)
 
-    P1_DOUBLE_PATH = os.path.join(DAT_PATH, "p1_double")
-    if not os.path.isdir(P1_DOUBLE_PATH):
-        os.mkdir(P1_DOUBLE_PATH)
+    P1_single_PATH = os.path.join(DAT_PATH, "p1_single")
+    if not os.path.isdir(P1_single_PATH):
+        os.mkdir(P1_single_PATH)
 
     if args.all:
         for i, pattern in enumerate(["Reno_Reno_*.tr", "Newreno_Reno_*.tr",
