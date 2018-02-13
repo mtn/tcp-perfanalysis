@@ -1,3 +1,0 @@
-set terminal latex
-plot "../p1_double/"
-

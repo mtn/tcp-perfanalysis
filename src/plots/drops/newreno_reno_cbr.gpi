@@ -1,0 +1,3 @@
+set terminal latex
+plot [0:10] "../../dat/p1_double/nrr/drops/cbr.dat"
+
